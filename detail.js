@@ -162,6 +162,8 @@ const field = (k, v) => `<div class="field"><div class="k">${k}</div><div class=
 
 function render(b) {
   document.title = `${b.title} — Published NFT IPFS`
+  // Passes are landscape cards, not portrait book covers.
+  const isPass = /pass/i.test(b.title) || /pass/i.test(b.productType || '') || b.fbookId === 'librarypass'
   const rarityStyle = b.rarity ? `style="color:${RARITY_COLORS[b.rarity] || '#cbd5e1'};border-color:${(RARITY_COLORS[b.rarity] || '#cbd5e1')}66"` : ''
   const staticImg = b.coverCID
     ? `<img class="cover-static" src="${IMG_GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" alt="${esc(b.title)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.display='none';}"/>`
@@ -178,8 +180,8 @@ function render(b) {
     : ''
 
   document.getElementById('detail').innerHTML = `
-    <div class="hero">
-      <div class="cover">
+    <div class="hero${isPass ? ' pass' : ''}">
+      <div class="cover${isPass ? ' pass' : ''}">
         ${staticImg}
         ${animated}
         ${buildBadge(b, 92)}
