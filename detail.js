@@ -90,6 +90,7 @@ async function buildBooks() {
       rarity: FORCE_PD.has(norm(r.title)) ? 'Public Domain' : (extra?.rarity || (cats.includes('Public Domain') ? 'Public Domain' : cats.includes('Classic') ? 'Classic' : null)),
       animatedCoverCID: (extra && extra.animatedCoverCID) || (cat && cat.animatedCoverCID) || null,
       coverCID: r.coverImageCID || (cat && cat.coverCID) || r.ipfsCID, contentCID: r.ipfsCID,
+      coverPath: (cat && cat.coverPath) || null,
       metadataCID: metaCids[r.psim] || null,
       totalSupply: r.totalSupply, mintedCount: r.mintedCount, onChain: true,
       fbookId: titleToId.get(norm(r.title)) || '',
@@ -100,6 +101,7 @@ async function buildBooks() {
     psim: '', tokenId: '', title: c.title, author: c.author, productType: c.type, isbn13: null,
     series: c.series || null, rarity: FORCE_PD.has(norm(c.title)) ? 'Public Domain' : (c.rarity || null),
     animatedCoverCID: c.animatedCoverCID || null, coverCID: c.coverCID || '', contentCID: c.contentCID || '',
+    coverPath: c.coverPath || null,
     metadataCID: null, totalSupply: '', mintedCount: '', onChain: false, fbookId: c.id,
   }))
 
@@ -162,19 +164,24 @@ function render(b) {
   document.title = `${b.title} — Published NFT IPFS`
   const rarityStyle = b.rarity ? `style="color:${RARITY_COLORS[b.rarity] || '#cbd5e1'};border-color:${(RARITY_COLORS[b.rarity] || '#cbd5e1')}66"` : ''
   const staticImg = b.coverCID
-    ? `<img class="cover-static" src="${IMG_GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" alt="${esc(b.title)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}"/>`
-    : ''
-  const animated = b.animatedCoverCID
-    ? `<video class="cover-video" autoplay loop muted playsinline>
+    ? `<img class="cover-static" src="${IMG_GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" alt="${esc(b.title)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.display='none';}"/>`
+    : (b.coverPath ? `<img class="cover-static" src="${esc(b.coverPath)}" alt="${esc(b.title)}" onerror="this.style.display='none'"/>` : '')
+  const animated = (b.animatedCoverCID || b.animatedCoverPath)
+    ? `<video class="cover-video" autoplay loop muted playsinline ${b.coverCID ? `poster="${IMG_GW(b.coverCID)}"` : (b.coverPath ? `poster="${esc(b.coverPath)}"` : '')}>
+         ${b.animatedCoverCID ? `
          <source src="${GW(b.animatedCoverCID)}" type="video/mp4"/>
          <source src="${GW_FALLBACK(b.animatedCoverCID)}" type="video/mp4"/>
+         ` : `
+         <source src="${esc(b.animatedCoverPath)}" type="video/mp4"/>
+         `}
        </video>`
     : ''
 
   document.getElementById('detail').innerHTML = `
     <div class="hero">
       <div class="cover">
-        ${animated || staticImg}
+        ${staticImg}
+        ${animated}
         ${buildBadge(b, 92)}
       </div>
       <div>
