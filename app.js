@@ -169,7 +169,9 @@ async function load() {
       rarity: FORCE_PD.has(norm(c.title)) ? 'Public Domain' : c.rarity || null,
       animatedCoverCID: c.animatedCoverCID || null,
       contentCID: c.contentCID || '', coverCID: c.coverCID || '',
-      totalSupply: '', mintedCount: '', onChain: false, fbookId: c.id,
+      totalSupply: c.maxSupply ? String(c.maxSupply) : '',
+      mintedCount: c.maxSupply ? '0' : '',
+      onChain: false, fbookId: c.id,
       href: c.href || `/description/${c.id}`, flowscanUrl: '',
     }))
 

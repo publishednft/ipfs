@@ -108,7 +108,7 @@
     "id": "artdeco-magazine-2",
     "title": "Art Deco Magazine - Central Figure",
     "author": "Vintage Publishing",
-    "type": "bookstore",
+    "type": "magazine",
     "href": "/description/artdeco-magazine-2",
     "coverPath": "/images/covers/Central Figure Layout.jpg",
     "coverCID": "bafkreihpdbropuodxj3caa5yx3pfxoprhartvyifnobxsquff6ph36zp2q",
@@ -121,7 +121,7 @@
     "id": "artdeco-magazine-1",
     "title": "Art Deco Magazine - Collage Edition",
     "author": "Vintage Publishing",
-    "type": "bookstore",
+    "type": "magazine",
     "href": "/description/artdeco-magazine-1",
     "coverPath": "/images/covers/Art Deco Collage Layout.jpg",
     "coverCID": "bafybeiebckgi7nas4s6vdxwpvzmtkcr75k2cpq2cjujyfw26xujfxzwheu",
@@ -160,7 +160,7 @@
     "id": "boast5",
     "title": "BOAST Magazine Issue 5",
     "author": "BOAST Team",
-    "type": "bookstore",
+    "type": "magazine",
     "href": "/description/boast5",
     "coverPath": "/images/covers/BOAST_MAGAZINE_ISSUE5.jpg",
     "coverCID": "bafybeihhasyglyivgziqswonlb3luv2ds2g35ye6ivzuwofkhns67decry",
@@ -173,7 +173,7 @@
     "id": "boast6",
     "title": "BOAST Magazine Issue 6",
     "author": "BOAST Team",
-    "type": "bookstore",
+    "type": "magazine",
     "href": "/description/boast6",
     "coverPath": "/images/covers/BOAST_MAGAZINE_ISSUE6.jpg",
     "coverCID": "bafybeiad4d6wwe5j5vhvo43tjpjwiywdrmlmkqry3s46tleniwa3lqi6pi",
@@ -414,7 +414,8 @@
     "animatedCoverCID": null,
     "contentCID": null,
     "series": "Mancave · Series 1",
-    "rarity": "Subscription"
+    "rarity": "Subscription",
+    "maxSupply": 10000
   },
   {
     "id": "mancave-playbabes-2022",
@@ -427,7 +428,8 @@
     "animatedCoverCID": null,
     "contentCID": null,
     "series": "Mancave · Series 1",
-    "rarity": "Subscription"
+    "rarity": "Subscription",
+    "maxSupply": 10000
   },
   {
     "id": "moby-dick",
@@ -479,7 +481,8 @@
     "animatedCoverCID": null,
     "contentCID": null,
     "series": "Mancave · Series 1",
-    "rarity": "Subscription"
+    "rarity": "Subscription",
+    "maxSupply": 10000
   },
   {
     "id": "pride-prejudice",
@@ -668,7 +671,7 @@
     "id": "flapper-magazine",
     "title": "The Flapper Magazine - Jazz Age Special",
     "author": "Roaring Twenties Press",
-    "type": "bookstore",
+    "type": "magazine",
     "href": "/description/flapper-magazine",
     "coverPath": "/images/covers/Flapper Collage with Title.png",
     "coverCID": "bafybeigdd7ajwxak6w5f26s44rllcq6upojllssbmji2bu3oz476sery7y",

@@ -102,7 +102,10 @@ async function buildBooks() {
     series: c.series || null, rarity: FORCE_PD.has(norm(c.title)) ? 'Public Domain' : (c.rarity || null),
     animatedCoverCID: c.animatedCoverCID || null, coverCID: c.coverCID || '', contentCID: c.contentCID || '',
     coverPath: c.coverPath || null,
-    metadataCID: null, totalSupply: '', mintedCount: '', onChain: false, fbookId: c.id,
+    metadataCID: null,
+    totalSupply: c.maxSupply ? String(c.maxSupply) : '',
+    mintedCount: c.maxSupply ? '0' : '',
+    onChain: false, fbookId: c.id,
   }))
 
   const merged = [...onChain, ...offChain].filter((b) => !EXCLUDED.has(norm(b.title)))
