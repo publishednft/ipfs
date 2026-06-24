@@ -60,6 +60,39 @@
   .cid .copy { background: none; border: none; color: #64748b; cursor: pointer; font-size: 12px; padding: 0; }
   .fs { color: #cbd5e1; text-decoration: none; font-size: 11px; }
   #loading { padding: 60px; text-align: center; color: #94a3b8; }
+
+  /* ── Mobile: stack each row as a card (14-col table is unusable narrow) ── */
+  @media (max-width: 720px) {
+    .wrap { padding: 18px 12px 60px; }
+    h1 { font-size: 22px; }
+    .banner { flex-wrap: wrap; }
+    .banner a { margin-left: 0; }
+    .tablewrap { border: none; overflow-x: visible; }
+    table { min-width: 0; }
+    thead { display: none; }
+    tbody, tr, td { display: block; width: 100%; }
+    tr {
+      border: 1px solid rgba(255,255,255,.12); border-radius: 12px;
+      background: rgba(255,255,255,.03); margin-bottom: 12px; padding: 6px 12px 10px;
+    }
+    tr.alt { background: rgba(255,255,255,.03); }
+    td {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      border-top: 1px solid rgba(255,255,255,.06); padding: 7px 0; text-align: right;
+    }
+    td::before {
+      content: attr(data-label); color: #94a3b8; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .03em; text-align: left; flex: 0 0 auto;
+    }
+    /* Title row: full-width header of the card */
+    td.title {
+      justify-content: flex-start; border-top: none; padding-top: 4px;
+      font-size: 15px;
+    }
+    td.title::before { display: none; }
+    td.title img { width: 40px; height: 52px; }
+    .cid { justify-content: flex-end; }
+  }
 </style>
 </head>
 <body>

@@ -233,20 +233,20 @@ function render() {
 
     return `
     <tr class="${i % 2 ? 'alt' : ''}"${bookUrl ? ` data-url="${bookUrl}" style="cursor:pointer"` : ''}>
-      <td class="title">${coverHtml}${titleHtml}</td>
-      <td class="nowrap">${b.author || ''}</td>
-      <td>${b.isbn13 ? `<code class="isbn">${b.isbn13}</code>` : '<span class="muted">—</span>'}</td>
-      <td class="nowrap small">${b.series || '<span class="muted">—</span>'}</td>
-      <td>${rarityBadge(b.rarity)}</td>
-      <td>${b.psim ? `<code class="psim">${b.psim}</code>` : '<span class="muted">—</span>'}</td>
-      <td>${b.tokenId ? `<code class="flowid">${b.tokenId}</code>` : '<span class="muted">—</span>'}</td>
-      <td>${b.ebookNumber ? `<code class="fbook">${b.ebookNumber}</code>` : '<span class="muted">—</span>'}</td>
-      <td><span class="type">${b.productType}</span></td>
-      <td>${b.mintedCount !== '' ? b.mintedCount + (b.totalSupply && b.totalSupply !== '0' ? ' / ' + b.totalSupply : '') : '<span class="muted">—</span>'}</td>
-      <td>${cidCell(b.coverCID)}</td>
-      <td>${cidCell(b.contentCID)}</td>
-      <td>${cidCell(b.animatedCoverCID)}</td>
-      <td>${b.onChain ? `<a class="fs" href="${b.flowscanUrl}" target="_blank" rel="noopener">FlowScan ↗</a>` : '<span class="muted small">Off-chain</span>'}</td>
+      <td class="title" data-label="Book">${coverHtml}${titleHtml}</td>
+      <td class="nowrap" data-label="Author">${b.author || ''}</td>
+      <td data-label="ISBN-13">${b.isbn13 ? `<code class="isbn">${b.isbn13}</code>` : '<span class="muted">—</span>'}</td>
+      <td class="nowrap small" data-label="Series">${b.series || '<span class="muted">—</span>'}</td>
+      <td data-label="Rarity">${rarityBadge(b.rarity)}</td>
+      <td data-label="PSIM">${b.psim ? `<code class="psim">${b.psim}</code>` : '<span class="muted">—</span>'}</td>
+      <td data-label="Flow ID">${b.tokenId ? `<code class="flowid">${b.tokenId}</code>` : '<span class="muted">—</span>'}</td>
+      <td data-label="eBook ID">${b.ebookNumber ? `<code class="fbook">${b.ebookNumber}</code>` : '<span class="muted">—</span>'}</td>
+      <td data-label="Type"><span class="type">${b.productType}</span></td>
+      <td data-label="Mints">${b.mintedCount !== '' ? b.mintedCount + (b.totalSupply && b.totalSupply !== '0' ? ' / ' + b.totalSupply : '') : '<span class="muted">—</span>'}</td>
+      <td data-label="IPFS Cover">${cidCell(b.coverCID)}</td>
+      <td data-label="IPFS Content">${cidCell(b.contentCID)}</td>
+      <td data-label="Animated">${cidCell(b.animatedCoverCID)}</td>
+      <td data-label="On-chain">${b.onChain ? `<a class="fs" href="${b.flowscanUrl}" target="_blank" rel="noopener">FlowScan ↗</a>` : '<span class="muted small">Off-chain</span>'}</td>
     </tr>`
   }).join('')
 }
