@@ -168,14 +168,15 @@ function render(b) {
   // Try the branded Pinata gateway first (reliably serves pinned content), then
   // public gateways. Content pinned only on Pinata often won't resolve on ipfs.io.
   const coverChain = b.coverCID
-    ? [GW(b.coverCID), `https://ipfs.io/ipfs/${b.coverCID}`, `https://dweb.link/ipfs/${b.coverCID}`, `https://gateway.lighthouse.storage/ipfs/${b.coverCID}`]
+    ? [`https://ipfs.io/ipfs/${b.coverCID}`, GW(b.coverCID), `https://dweb.link/ipfs/${b.coverCID}`, `https://gateway.lighthouse.storage/ipfs/${b.coverCID}`]
     : (b.coverPath ? [b.coverPath] : [])
   const staticImg = coverChain.length
     ? `<img class="cover-static" src="${esc(coverChain[0])}" data-srcs="${esc(coverChain.join('|'))}" data-i="0" alt="${esc(b.title)}" onerror="var s=this.dataset.srcs.split('|'),i=+this.dataset.i+1;if(s[i]){this.dataset.i=i;this.src=s[i];}else{this.style.display='none';}"/>`
     : ''
   const animated = (b.animatedCoverCID || b.animatedCoverPath)
-    ? `<video class="cover-video" autoplay loop muted playsinline ${b.coverCID ? `poster="${GW(b.coverCID)}"` : (b.coverPath ? `poster="${esc(b.coverPath)}"` : '')}>
+    ? `<video class="cover-video" autoplay loop muted playsinline ${b.coverCID ? `poster="${IMG_GW(b.coverCID)}"` : (b.coverPath ? `poster="${esc(b.coverPath)}"` : '')}>
          ${b.animatedCoverCID ? `
+         <source src="${IMG_GW(b.animatedCoverCID)}" type="video/mp4"/>
          <source src="${GW(b.animatedCoverCID)}" type="video/mp4"/>
          <source src="${GW_FALLBACK(b.animatedCoverCID)}" type="video/mp4"/>
          ` : `
