@@ -30,7 +30,19 @@
     background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #fff;
     border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none;
   }
-  input { flex: 1; min-width: 220px; }
+  input { flex: 0 1 260px; min-width: 160px; }
+  /* Help "?" menu */
+  .h1row { display: flex; align-items: center; gap: 10px; }
+  .help-btn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 9999px; border: none; background: #f97316; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  .help-btn:hover { background: #fb923c; }
+  .help-pop { display: none; margin: 12px 0 0; width: 360px; max-width: 100%; background: rgba(15,23,42,.97); border: 1px solid rgba(255,255,255,.12); border-radius: 16px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .help-pop.open { display: block; }
+  .help-pop h3 { margin: 0 0 12px; font-size: 17px; color: #fb923c; }
+  .help-pop ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .help-pop li { font-size: 13px; line-height: 1.5; color: #cbd5e1; display: flex; gap: 8px; }
+  .help-pop li b { color: #fdba74; }
+  .help-pop .num { color: #fb923c; font-weight: 700; }
+  .help-pop .foot { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); font-size: 11px; font-style: italic; color: #94a3b8; }
   #count { color: #94a3b8; font-size: 12px; white-space: nowrap; }
   #warn { display: none; color: #fca5a5; font-size: 13px; margin-bottom: 12px; }
   .tablewrap { overflow-x: auto; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; }
@@ -98,8 +110,21 @@
 <body>
   <div class="wrap">
     <header>
-      <h1>Published NFT <span class="grad">IPFS</span></h1>
+      <div class="h1row">
+        <h1>Published NFT <span class="grad">IPFS</span></h1>
+        <button class="help-btn" id="helpBtn" aria-label="Why decentralized assets matter">?</button>
+      </div>
       <div class="sub">Books and their decentralized, Pinata-pinned IPFS assets — read live from the Flow blockchain.</div>
+      <div class="help-pop" id="helpPop">
+        <h3>Why Decentralized Assets Matter</h3>
+        <ol>
+          <li><span class="num">1.</span><span><b>True Ownership:</b> Your Published NFT books are stored on IPFS, a decentralized network. The assets exist independently of any single company.</span></li>
+          <li><span class="num">2.</span><span><b>Permanence:</b> Anyone can pin these IPFS assets to ensure they remain accessible forever. Even if Published NFT ceased operations, your books would survive.</span></li>
+          <li><span class="num">3.</span><span><b>Public &amp; Verifiable:</b> All CIDs (Content Identifiers) are public. Anyone can verify the authenticity and access the original media files.</span></li>
+          <li><span class="num">4.</span><span><b>Interoperability:</b> These assets can be used in any application, marketplace, or platform that supports IPFS — enabling endless possibilities for your collection.</span></li>
+        </ol>
+        <div class="foot">Click any IPFS link to view the decentralized asset directly.</div>
+      </div>
     </header>
 
     <div class="banner">
@@ -131,5 +156,16 @@
   </div>
   <script src="./config.js"></script>
   <script src="./app.js"></script>
+  <script>
+    (function () {
+      var btn = document.getElementById('helpBtn');
+      var pop = document.getElementById('helpPop');
+      if (!btn || !pop) return;
+      btn.addEventListener('click', function (e) { e.stopPropagation(); pop.classList.toggle('open'); });
+      document.addEventListener('click', function (e) {
+        if (!pop.contains(e.target) && e.target !== btn) pop.classList.remove('open');
+      });
+    })();
+  </script>
 </body>
 </html>
