@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Published NFT — IPFS</title>
+<meta name="description" content="Browse Published NFT books and their decentralized, IPFS-pinned assets. Every cover, content file, and metadata record is content-addressed and read live from the Flow blockchain — verify it yourself, no account or backend required." />
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: #e2e8f0; background: linear-gradient(135deg, #0f172a, rgba(76,29,149,.35), #0f172a);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 32px 16px 80px; }
+  header { border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 18px; margin-bottom: 18px; }
+  h1 { font-size: 28px; margin: 0; font-weight: 800; }
+  h1 .grad { background: linear-gradient(90deg,#22d3ee,#34d399); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { color: #94a3b8; font-size: 13px; margin-top: 4px; }
+  .banner {
+    display: flex; gap: 8px; align-items: center; font-size: 12px; color: #cbd5e1;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 14px;
+  }
+  .banner b { color: #fff; }
+  .banner a { color: #67e8f9; text-decoration: none; margin-left: auto; white-space: nowrap; }
+  .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  input, select {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #fff;
+    border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none;
+  }
+  input { flex: 1; min-width: 220px; }
+  #count { color: #94a3b8; font-size: 12px; white-space: nowrap; }
+  #warn { display: none; color: #fca5a5; font-size: 13px; margin-bottom: 12px; }
+  .tablewrap { overflow-x: auto; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; }
+  table { width: 100%; min-width: 1100px; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    text-align: left; font-size: 11px; letter-spacing: .03em; text-transform: uppercase;
+    color: rgba(254,205,211,.8); padding: 10px 12px; font-weight: 600;
+    background: linear-gradient(90deg, rgba(76,5,25,.7), rgba(15,23,42,.7));
+  }
+  tbody td { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,.05); vertical-align: middle; }
+  tr.alt { background: rgba(255,255,255,.02); }
+  .title { display: flex; align-items: center; gap: 8px; }
+  .title img { width: 28px; height: 36px; object-fit: cover; border-radius: 4px; background: #000; border: 1px solid rgba(255,255,255,.1); flex: 0 0 auto; }
+  .title span { color: #fff; font-weight: 500; line-height: 1.2; }
+  .nowrap { white-space: nowrap; }
+  .small { font-size: 12px; color: #94a3b8; }
+  .muted { color: #475569; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+  .isbn { color: #6ee7b7; } .psim { color: #67e8f9; } .flowid { color: #c4b5fd; } .fbook { color: #7dd3fc; }
+  .type { background: rgba(34,211,238,.15); color: #a5f3fc; border: 1px solid rgba(34,211,238,.3); border-radius: 6px; padding: 1px 7px; font-size: 10px; text-transform: capitalize; }
+  .rarity { border: 1px solid; border-radius: 6px; padding: 1px 7px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .cid { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .cid a { color: #fbbf24; text-decoration: none; font-family: ui-monospace, monospace; font-size: 11px; }
+  .cid a[title="ipfs.io"], .cid a[title="dweb.link"] { color: #64748b; font-size: 9px; }
+  .cid .copy { background: none; border: none; color: #64748b; cursor: pointer; font-size: 12px; padding: 0; }
+  .fs { color: #cbd5e1; text-decoration: none; font-size: 11px; }
+  #loading { padding: 60px; text-align: center; color: #94a3b8; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Published NFT <span class="grad">IPFS</span></h1>
+      <div class="sub">Books and their decentralized, Pinata-pinned IPFS assets — read live from the Flow blockchain.</div>
+    </header>
+
+    <div class="banner">
+      <span>🛡️</span>
+      <span>Every book's cover, content, and metadata are content-addressed on IPFS and linked on-chain by PSIM. This page reads the registry straight from Flow in your browser — <b>verify it yourself</b>.</span>
+      <a href="https://testnet.flowscan.io/account/0x4c55dc21a9da7476" target="_blank" rel="noopener">On-chain registry ↗</a>
+    </div>
+
+    <div id="warn"></div>
+
+    <div class="controls">
+      <input id="search" placeholder="Search title, author, PSIM, ISBN…" />
+      <select id="type"><option value="all">All types</option></select>
+      <div id="count"></div>
+    </div>
+
+    <div id="loading">Reading the on-chain registry…</div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr>
+          <th>Title</th><th>Author</th><th>ISBN-13</th><th>Series</th><th>Rarity</th>
+          <th>PSIM</th><th>Flow ID</th><th>FBook ID</th><th>Type</th><th>Mints</th>
+          <th>IPFS Cover</th><th>IPFS Content</th><th>Animated Cover</th><th>On-chain</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>

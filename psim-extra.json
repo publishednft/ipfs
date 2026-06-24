@@ -1,0 +1,13 @@
+{
+  "_comment": "Editorial enrichment for the IPFS Reference (series/rarity/animated cover). Not on-chain — edit freely. Keyed by PSIM.",
+  "0x4c55dc21a9da7476-1": { "series": "Genesis · Series 1", "rarity": "Subscription", "animatedCoverCID": "bafybeih4udfjcdrwhbga66ucddajuj7iekoicl4ks7h72jdcrkll2ftvpy" },
+  "0x4c55dc21a9da7476-2": { "series": "BOAST · Issue 6", "rarity": "Limited", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-3": { "series": "Originals · Series 1", "rarity": "Ultra Rare", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-4": { "series": "Classics · Series 1", "rarity": "Classic", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-5": { "series": "Sacred Texts · Series 1", "rarity": "Sacred", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-6": { "series": "Sacred Texts · Series 1", "rarity": "Sacred", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-7": { "series": "Sacred Texts · Series 1", "rarity": "Sacred", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-8": { "series": "Sacred Texts · Series 1", "rarity": "Sacred", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-9": { "series": "Sacred Texts · Series 1", "rarity": "Sacred", "animatedCoverCID": null },
+  "0x4c55dc21a9da7476-10": { "series": "Sacred Texts · Series 1", "rarity": "Sacred", "animatedCoverCID": null }
+}
