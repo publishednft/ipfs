@@ -6,7 +6,23 @@
 
 const PLATFORM = '0x4c55dc21a9da7476'
 const ACCESS_NODE = 'https://rest-testnet.onflow.org'
-const GW = 'https://ipfs.publishednft.io/ipfs/'
+
+// Gateway selection (see config.js). If a branded Pinata dedicated gateway +
+// token is configured, use it (token required, else Pinata returns 401
+// ERR_ID:00024). Otherwise fall back to public gateways — Pinata-pinned CIDs
+// resolve on any public gateway, and there's no token to expose publicly.
+const _cfg = (typeof window !== 'undefined' && window.__IPFS_GATEWAY) || {}
+const _tokenQS = _cfg.token ? `?pinataGatewayToken=${_cfg.token}` : ''
+// Use the branded Pinata gateway whenever a domain is configured (token is
+// appended only if provided). With a token-required gateway you must supply the
+// token; if you make the gateway token-optional in Pinata, domain alone works.
+// No domain → public gateways.
+const GW = _cfg.domain
+  ? (cidPath) => `https://${_cfg.domain}/ipfs/${cidPath}${_tokenQS}`
+  : (cidPath) => `https://ipfs.io/ipfs/${cidPath}`
+// Fallback for cover <img> only — a public gateway so a flaky branded request
+// still resolves the image.
+const GW_FALLBACK = (cidPath) => `https://dweb.link/ipfs/${cidPath}`
 
 const SCRIPT = `
 import PSIMRegistry from 0x4c55dc21a9da7476
@@ -61,7 +77,10 @@ async function runRegistryScript() {
   if (!res.ok) throw new Error(`Flow API ${res.status}: ${await res.text()}`)
   const txt = await res.text()
   const b64 = txt.startsWith('"') ? JSON.parse(txt) : txt
-  return decode(JSON.parse(atob(b64)))
+  // UTF-8-safe base64 decode (atob alone mangles multi-byte chars in titles).
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
+  const json = new TextDecoder().decode(bytes)
+  return decode(JSON.parse(json))
 }
 
 const norm = (s) => String(s || '').trim().toLowerCase()
@@ -77,7 +96,7 @@ function shortCid(cid) {
 
 function cidCell(cid) {
   if (!cid) return '<span class="muted">—</span>'
-  const url = GW + cid
+  const url = GW(cid)
   return `<span class="cid">
     <a href="${url}" target="_blank" rel="noopener" title="${cid}">${shortCid(cid)}</a>
     <button class="copy" data-cid="${cid}" title="Copy CID">⧉</button>
@@ -105,11 +124,13 @@ async function load() {
   }
 
   const titleToId = new Map(catalog.map((c) => [norm(c.title), String(c.id)]))
+  const titleToHref = new Map(catalog.map((c) => [norm(c.title), c.href]))
 
   const onChain = raw.map((r) => {
     const coverCID = r.coverImageCID || r.ipfsCID
     const extra = psimExtra[r.psim] || null
     const cats = r.categories || []
+    const fbookId = titleToId.get(norm(r.title)) || ''
     return {
       psim: r.psim, tokenId: r.tokenId, title: r.title, author: r.author,
       productType: r.productType, isbn13: r.isbn13 || null,
@@ -119,7 +140,8 @@ async function load() {
       contentCID: r.ipfsCID, coverCID,
       totalSupply: r.totalSupply, mintedCount: r.mintedCount,
       onChain: true,
-      fbookId: titleToId.get(norm(r.title)) || '',
+      fbookId,
+      href: titleToHref.get(norm(r.title)) || (fbookId ? `/description/${fbookId}` : ''),
       flowscanUrl: `https://testnet.flowscan.io/account/${PLATFORM}`,
     }
   })
@@ -132,7 +154,8 @@ async function load() {
       isbn13: null, series: c.series || null, rarity: c.rarity || null,
       animatedCoverCID: c.animatedCoverCID || null,
       contentCID: c.contentCID || '', coverCID: c.coverCID || '',
-      totalSupply: '', mintedCount: '', onChain: false, fbookId: c.id, flowscanUrl: '',
+      totalSupply: '', mintedCount: '', onChain: false, fbookId: c.id,
+      href: c.href || `/description/${c.id}`, flowscanUrl: '',
     }))
 
   BOOKS = [...onChain, ...offChain]
@@ -164,9 +187,24 @@ function render() {
   const rarityBadge = (r) =>
     r ? `<span class="rarity" style="color:${RARITY_COLORS[r] || '#cbd5e1'};border-color:${(RARITY_COLORS[r] || '#cbd5e1')}55">✦ ${r === 'Public Domain' ? 'Public' : r}</span>` : '<span class="muted">—</span>'
 
-  document.getElementById('rows').innerHTML = rows.map((b, i) => `
-    <tr class="${i % 2 ? 'alt' : ''}">
-      <td class="title"><img loading="lazy" src="${b.coverCID ? GW + b.coverCID : ''}" onerror="this.style.visibility='hidden'"/><span>${b.title}</span></td>
+  document.getElementById('rows').innerHTML = rows.map((b, i) => {
+    // Whole row links to the book's IPFS detail page on the main app, matching
+    // /ipfs there: on-chain → /ipfs/<psim>, off-chain → /ipfs/<catalog-id>.
+    const ipfsId = b.psim || b.fbookId
+    const bookUrl = ipfsId ? `https://publishednft.io/ipfs/${encodeURIComponent(ipfsId)}` : null
+    const imgHtml = b.coverCID
+      ? `<img loading="lazy" src="${GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.visibility='hidden';}"/>`
+      : `<img style="visibility:hidden"/>`
+    const coverHtml = bookUrl && b.coverCID
+      ? `<a href="${bookUrl}" target="_blank" rel="noopener" class="book-cover-link">${imgHtml}</a>`
+      : imgHtml
+    const titleHtml = bookUrl
+      ? `<a href="${bookUrl}" target="_blank" rel="noopener" class="book-link"><span>${b.title}</span></a>`
+      : `<span>${b.title}</span>`
+
+    return `
+    <tr class="${i % 2 ? 'alt' : ''}"${bookUrl ? ` data-url="${bookUrl}" style="cursor:pointer"` : ''}>
+      <td class="title">${coverHtml}${titleHtml}</td>
       <td class="nowrap">${b.author || ''}</td>
       <td>${b.isbn13 ? `<code class="isbn">${b.isbn13}</code>` : '<span class="muted">—</span>'}</td>
       <td class="nowrap small">${b.series || '<span class="muted">—</span>'}</td>
@@ -180,15 +218,23 @@ function render() {
       <td>${cidCell(b.contentCID)}</td>
       <td>${cidCell(b.animatedCoverCID)}</td>
       <td>${b.onChain ? `<a class="fs" href="${b.flowscanUrl}" target="_blank" rel="noopener">FlowScan ↗</a>` : '<span class="muted small">Off-chain</span>'}</td>
-    </tr>`).join('')
+    </tr>`
+  }).join('')
 }
 
 document.addEventListener('click', (e) => {
+  // Copy-CID button
   const btn = e.target.closest('.copy')
   if (btn) {
     navigator.clipboard.writeText(btn.dataset.cid)
     const t = btn.textContent; btn.textContent = '✓'; setTimeout(() => (btn.textContent = t), 1000)
+    return
   }
+  // Inner links (CID gateways, FlowScan, title/cover) handle themselves.
+  if (e.target.closest('a')) return
+  // Otherwise a click anywhere on the row opens its IPFS detail page.
+  const tr = e.target.closest('tr[data-url]')
+  if (tr) window.open(tr.dataset.url, '_blank', 'noopener')
 })
 document.getElementById('search').addEventListener('input', render)
 document.getElementById('type').addEventListener('change', render)

@@ -13,7 +13,7 @@
     color: #e2e8f0; background: linear-gradient(135deg, #0f172a, rgba(76,29,149,.35), #0f172a);
     min-height: 100vh;
   }
-  .wrap { max-width: 1400px; margin: 0 auto; padding: 32px 16px 80px; }
+  .wrap { max-width: 100%; margin: 0; padding: 28px 20px 60px; }
   header { border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 18px; margin-bottom: 18px; }
   h1 { font-size: 28px; margin: 0; font-weight: 800; }
   h1 .grad { background: linear-gradient(90deg,#22d3ee,#34d399); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -34,17 +34,19 @@
   #count { color: #94a3b8; font-size: 12px; white-space: nowrap; }
   #warn { display: none; color: #fca5a5; font-size: 13px; margin-bottom: 12px; }
   .tablewrap { overflow-x: auto; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; }
-  table { width: 100%; min-width: 1100px; border-collapse: collapse; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
   thead th {
-    text-align: left; font-size: 11px; letter-spacing: .03em; text-transform: uppercase;
-    color: rgba(254,205,211,.8); padding: 10px 12px; font-weight: 600;
+    text-align: left; font-size: 10px; letter-spacing: .02em; text-transform: uppercase;
+    color: rgba(254,205,211,.8); padding: 8px 8px; font-weight: 600;
     background: linear-gradient(90deg, rgba(76,5,25,.7), rgba(15,23,42,.7));
   }
-  tbody td { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,.05); vertical-align: middle; }
+  tbody td { padding: 7px 8px; border-top: 1px solid rgba(255,255,255,.05); vertical-align: middle; word-break: break-word; }
   tr.alt { background: rgba(255,255,255,.02); }
   .title { display: flex; align-items: center; gap: 8px; }
   .title img { width: 28px; height: 36px; object-fit: cover; border-radius: 4px; background: #000; border: 1px solid rgba(255,255,255,.1); flex: 0 0 auto; }
   .title span { color: #fff; font-weight: 500; line-height: 1.2; }
+  .title a { text-decoration: none; color: inherit; display: inline-flex; align-items: center; }
+  .title a.book-link:hover span { text-decoration: underline; color: #67e8f9; }
   .nowrap { white-space: nowrap; }
   .small { font-size: 12px; color: #94a3b8; }
   .muted { color: #475569; }
@@ -87,13 +89,14 @@
       <table>
         <thead><tr>
           <th>Title</th><th>Author</th><th>ISBN-13</th><th>Series</th><th>Rarity</th>
-          <th>PSIM</th><th>Flow ID</th><th>FBook ID</th><th>Type</th><th>Mints</th>
+          <th>PSIM</th><th>Flow ID</th><th>eBook ID</th><th>Type</th><th>Mints</th>
           <th>IPFS Cover</th><th>IPFS Content</th><th>Animated Cover</th><th>On-chain</th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
   </div>
+  <script src="./config.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
