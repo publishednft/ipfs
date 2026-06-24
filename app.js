@@ -222,7 +222,11 @@ function render() {
     const ipfsId = b.psim || b.fbookId
     const bookUrl = ipfsId ? `./detail.html?id=${encodeURIComponent(ipfsId)}` : null
     const imgHtml = b.coverCID
-      ? `<img loading="lazy" src="${IMG_GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.visibility='hidden';}"/>`
+      ? (() => {
+          // Branded Pinata gateway first (serves pinned content reliably), then public gateways.
+          const srcs = [GW(b.coverCID), `https://ipfs.io/ipfs/${b.coverCID}`, `https://dweb.link/ipfs/${b.coverCID}`, `https://gateway.lighthouse.storage/ipfs/${b.coverCID}`]
+          return `<img loading="lazy" src="${srcs[0]}" data-srcs="${srcs.join('|')}" data-i="0" onerror="var s=this.dataset.srcs.split('|'),i=+this.dataset.i+1;if(s[i]){this.dataset.i=i;this.src=s[i];}else{this.style.visibility='hidden';}"/>`
+        })()
       : `<img style="visibility:hidden"/>`
     const coverHtml = bookUrl && b.coverCID
       ? `<a href="${bookUrl}" class="book-cover-link">${imgHtml}</a>`

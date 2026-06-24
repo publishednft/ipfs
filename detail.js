@@ -165,11 +165,16 @@ function render(b) {
   // Passes are landscape cards, not portrait book covers.
   const isPass = /pass/i.test(b.title) || /pass/i.test(b.productType || '') || b.fbookId === 'librarypass'
   const rarityStyle = b.rarity ? `style="color:${RARITY_COLORS[b.rarity] || '#cbd5e1'};border-color:${(RARITY_COLORS[b.rarity] || '#cbd5e1')}66"` : ''
-  const staticImg = b.coverCID
-    ? `<img class="cover-static" src="${IMG_GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" alt="${esc(b.title)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.display='none';}"/>`
-    : (b.coverPath ? `<img class="cover-static" src="${esc(b.coverPath)}" alt="${esc(b.title)}" onerror="this.style.display='none'"/>` : '')
+  // Try the branded Pinata gateway first (reliably serves pinned content), then
+  // public gateways. Content pinned only on Pinata often won't resolve on ipfs.io.
+  const coverChain = b.coverCID
+    ? [GW(b.coverCID), `https://ipfs.io/ipfs/${b.coverCID}`, `https://dweb.link/ipfs/${b.coverCID}`, `https://gateway.lighthouse.storage/ipfs/${b.coverCID}`]
+    : (b.coverPath ? [b.coverPath] : [])
+  const staticImg = coverChain.length
+    ? `<img class="cover-static" src="${esc(coverChain[0])}" data-srcs="${esc(coverChain.join('|'))}" data-i="0" alt="${esc(b.title)}" onerror="var s=this.dataset.srcs.split('|'),i=+this.dataset.i+1;if(s[i]){this.dataset.i=i;this.src=s[i];}else{this.style.display='none';}"/>`
+    : ''
   const animated = (b.animatedCoverCID || b.animatedCoverPath)
-    ? `<video class="cover-video" autoplay loop muted playsinline ${b.coverCID ? `poster="${IMG_GW(b.coverCID)}"` : (b.coverPath ? `poster="${esc(b.coverPath)}"` : '')}>
+    ? `<video class="cover-video" autoplay loop muted playsinline ${b.coverCID ? `poster="${GW(b.coverCID)}"` : (b.coverPath ? `poster="${esc(b.coverPath)}"` : '')}>
          ${b.animatedCoverCID ? `
          <source src="${GW(b.animatedCoverCID)}" type="video/mp4"/>
          <source src="${GW_FALLBACK(b.animatedCoverCID)}" type="video/mp4"/>
