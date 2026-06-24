@@ -23,6 +23,9 @@ const GW = _cfg.domain
 // Fallback for cover <img> only — a public gateway so a flaky branded request
 // still resolves the image.
 const GW_FALLBACK = (cidPath) => `https://dweb.link/ipfs/${cidPath}`
+// Cover thumbnails always render from a public gateway (with a second as the
+// onerror fallback), independent of the branded gateway, so images never break.
+const IMG_GW = (cidPath) => `https://ipfs.io/ipfs/${cidPath}`
 
 const SCRIPT = `
 import PSIMRegistry from 0x4c55dc21a9da7476
@@ -105,13 +108,18 @@ function cidCell(cid) {
   </span>`
 }
 
+// Display tweaks for the IPFS reference.
+const EXCLUDED = new Set(['the jeweled hoard']) // not a real book — hide it
+const FORCE_PD = new Set(['the great gatsby', 'pride and prejudice']) // public-domain ebooks
+
 let BOOKS = []
 
 async function load() {
-  const [catalog, psimExtra, metaCids] = await Promise.all([
+  const [catalog, psimExtra, metaCids, pdSales] = await Promise.all([
     fetch('./catalog.json').then((r) => r.json()),
     fetch('./psim-extra.json').then((r) => r.json()).then(({ _comment, ...rest }) => rest),
     fetch('./metadata-cids.json').then((r) => r.json()),
+    fetch('./pd-sales.json').then((r) => r.json()).catch(() => ({})),
   ])
 
   let raw = []
@@ -125,9 +133,13 @@ async function load() {
 
   const titleToId = new Map(catalog.map((c) => [norm(c.title), String(c.id)]))
   const titleToHref = new Map(catalog.map((c) => [norm(c.title), c.href]))
+  // Full catalog entry by title — lets on-chain books inherit the catalog's
+  // cover / animated-cover CIDs (psim-extra.json only covers a handful).
+  const titleToCat = new Map(catalog.map((c) => [norm(c.title), c]))
 
   const onChain = raw.map((r) => {
-    const coverCID = r.coverImageCID || r.ipfsCID
+    const cat = titleToCat.get(norm(r.title))
+    const coverCID = r.coverImageCID || (cat && cat.coverCID) || r.ipfsCID
     const extra = psimExtra[r.psim] || null
     const cats = r.categories || []
     const fbookId = titleToId.get(norm(r.title)) || ''
@@ -135,8 +147,10 @@ async function load() {
       psim: r.psim, tokenId: r.tokenId, title: r.title, author: r.author,
       productType: r.productType, isbn13: r.isbn13 || null,
       series: extra?.series || null,
-      rarity: extra?.rarity || (cats.includes('Public Domain') ? 'Public Domain' : cats.includes('Classic') ? 'Classic' : null),
-      animatedCoverCID: extra?.animatedCoverCID || null,
+      rarity: FORCE_PD.has(norm(r.title))
+        ? 'Public Domain'
+        : extra?.rarity || (cats.includes('Public Domain') ? 'Public Domain' : cats.includes('Classic') ? 'Classic' : null),
+      animatedCoverCID: (extra && extra.animatedCoverCID) || (cat && cat.animatedCoverCID) || null,
       contentCID: r.ipfsCID, coverCID,
       totalSupply: r.totalSupply, mintedCount: r.mintedCount,
       onChain: true,
@@ -151,14 +165,29 @@ async function load() {
     .filter((c) => !onChainTitles.has(norm(c.title)))
     .map((c) => ({
       psim: '', tokenId: '', title: c.title, author: c.author, productType: c.type,
-      isbn13: null, series: c.series || null, rarity: c.rarity || null,
+      isbn13: null, series: c.series || null,
+      rarity: FORCE_PD.has(norm(c.title)) ? 'Public Domain' : c.rarity || null,
       animatedCoverCID: c.animatedCoverCID || null,
       contentCID: c.contentCID || '', coverCID: c.coverCID || '',
       totalSupply: '', mintedCount: '', onChain: false, fbookId: c.id,
       href: c.href || `/description/${c.id}`, flowscanUrl: '',
     }))
 
-  BOOKS = [...onChain, ...offChain]
+  // Hide non-book entries, then assign sequential eBook numbers and set the
+  // public-domain supply to 10% of estimated worldwide sales.
+  const merged = [...onChain, ...offChain].filter((b) => !EXCLUDED.has(norm(b.title)))
+  const pdDefault = pdSales._default || 1000000
+  merged.forEach((b, i) => {
+    b.ebookNumber = i + 1
+    if (b.rarity === 'Public Domain') {
+      const sales = pdSales[b.fbookId] != null ? pdSales[b.fbookId]
+        : pdSales[norm(b.title)] != null ? pdSales[norm(b.title)] : pdDefault
+      b.totalSupply = String(Math.round(sales * 0.1))
+      if (b.mintedCount === '' || b.mintedCount == null) b.mintedCount = '0'
+    }
+  })
+
+  BOOKS = merged
   buildTypeFilter()
   render()
   document.getElementById('loading').style.display = 'none'
@@ -188,18 +217,18 @@ function render() {
     r ? `<span class="rarity" style="color:${RARITY_COLORS[r] || '#cbd5e1'};border-color:${(RARITY_COLORS[r] || '#cbd5e1')}55">✦ ${r === 'Public Domain' ? 'Public' : r}</span>` : '<span class="muted">—</span>'
 
   document.getElementById('rows').innerHTML = rows.map((b, i) => {
-    // Whole row links to the book's IPFS detail page on the main app, matching
-    // /ipfs there: on-chain → /ipfs/<psim>, off-chain → /ipfs/<catalog-id>.
+    // Whole row links to this site's static detail page (stays on github.io):
+    // on-chain → ?id=<psim>, off-chain → ?id=<catalog-id>.
     const ipfsId = b.psim || b.fbookId
-    const bookUrl = ipfsId ? `https://publishednft.io/ipfs/${encodeURIComponent(ipfsId)}` : null
+    const bookUrl = ipfsId ? `./detail.html?id=${encodeURIComponent(ipfsId)}` : null
     const imgHtml = b.coverCID
-      ? `<img loading="lazy" src="${GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.visibility='hidden';}"/>`
+      ? `<img loading="lazy" src="${IMG_GW(b.coverCID)}" data-fb="${GW_FALLBACK(b.coverCID)}" onerror="if(this.src!==this.dataset.fb){this.src=this.dataset.fb;}else{this.style.visibility='hidden';}"/>`
       : `<img style="visibility:hidden"/>`
     const coverHtml = bookUrl && b.coverCID
-      ? `<a href="${bookUrl}" target="_blank" rel="noopener" class="book-cover-link">${imgHtml}</a>`
+      ? `<a href="${bookUrl}" class="book-cover-link">${imgHtml}</a>`
       : imgHtml
     const titleHtml = bookUrl
-      ? `<a href="${bookUrl}" target="_blank" rel="noopener" class="book-link"><span>${b.title}</span></a>`
+      ? `<a href="${bookUrl}" class="book-link"><span>${b.title}</span></a>`
       : `<span>${b.title}</span>`
 
     return `
@@ -211,7 +240,7 @@ function render() {
       <td>${rarityBadge(b.rarity)}</td>
       <td>${b.psim ? `<code class="psim">${b.psim}</code>` : '<span class="muted">—</span>'}</td>
       <td>${b.tokenId ? `<code class="flowid">${b.tokenId}</code>` : '<span class="muted">—</span>'}</td>
-      <td>${b.fbookId ? `<code class="fbook">${b.fbookId}</code>` : '<span class="muted">—</span>'}</td>
+      <td>${b.ebookNumber ? `<code class="fbook">${b.ebookNumber}</code>` : '<span class="muted">—</span>'}</td>
       <td><span class="type">${b.productType}</span></td>
       <td>${b.mintedCount !== '' ? b.mintedCount + (b.totalSupply && b.totalSupply !== '0' ? ' / ' + b.totalSupply : '') : '<span class="muted">—</span>'}</td>
       <td>${cidCell(b.coverCID)}</td>
@@ -232,9 +261,9 @@ document.addEventListener('click', (e) => {
   }
   // Inner links (CID gateways, FlowScan, title/cover) handle themselves.
   if (e.target.closest('a')) return
-  // Otherwise a click anywhere on the row opens its IPFS detail page.
+  // Otherwise a click anywhere on the row opens its IPFS detail page (same tab).
   const tr = e.target.closest('tr[data-url]')
-  if (tr) window.open(tr.dataset.url, '_blank', 'noopener')
+  if (tr) window.location.href = tr.dataset.url
 })
 document.getElementById('search').addEventListener('input', render)
 document.getElementById('type').addEventListener('change', render)

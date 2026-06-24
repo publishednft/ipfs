@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Book — Published NFT IPFS</title>
+<meta name="description" content="A single book's content-addressed IPFS assets and on-chain PSIM record, read live from the Flow blockchain — verify it yourself." />
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: #e2e8f0; background: linear-gradient(135deg, #0f172a, rgba(76,29,149,.35), #0f172a);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 20px 80px; }
+  a { color: #67e8f9; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; text-decoration: none; margin-bottom: 22px; }
+  .back:hover { color: #fff; }
+  .hero { display: grid; grid-template-columns: 280px 1fr; gap: 28px; }
+  @media (max-width: 700px) { .hero { grid-template-columns: 1fr; } }
+  .cover { position: relative; width: 280px; max-width: 100%; aspect-ratio: 2/3; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  .cover img, .cover video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* Floating QR fingerprint badge */
+  .fp-badge { position: absolute; bottom: 10px; right: 10px; z-index: 5; }
+  .fp-disc { position: absolute; inset: 0; border-radius: 9999px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.15); box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+  .fp-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 50%; animation: fp-spin 14s linear infinite; }
+  .fp-matrix { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 46%; height: 46%; background: #fff; border-radius: 6px; padding: 6%; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  .fp-matrix img { width: 100%; height: 100%; display: block; }
+  @keyframes fp-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .fp-ring { animation: none; } }
+  .author { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; margin-bottom: 4px; }
+  h1 { font-size: 28px; margin: 0 0 12px; font-weight: 800; line-height: 1.15; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .badge { border-radius: 7px; padding: 2px 9px; font-size: 11px; font-weight: 600; border: 1px solid; }
+  .type { background: rgba(34,211,238,.15); color: #a5f3fc; border-color: rgba(34,211,238,.35); text-transform: capitalize; }
+  .rarity { background: rgba(255,255,255,.06); }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin-bottom: 4px; }
+  @media (max-width: 520px) { .fields { grid-template-columns: 1fr; } }
+  .field { border-top: 1px solid rgba(255,255,255,.08); padding-top: 8px; }
+  .field .k { font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: #94a3b8; margin-bottom: 2px; }
+  .field .v { font-size: 14px; color: #fff; word-break: break-word; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .psim { color: #67e8f9; } .flowid { color: #c4b5fd; } .ebook { color: #7dd3fc; } .isbn { color: #6ee7b7; }
+  .muted { color: #475569; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: #cbd5e1; margin: 34px 0 12px; }
+  .assets { border: 1px solid rgba(255,255,255,.1); border-radius: 12px; overflow: hidden; }
+  .asset { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,.06); }
+  .asset:first-child { border-top: none; }
+  .asset .label { width: 130px; flex: 0 0 auto; font-size: 13px; color: #cbd5e1; }
+  .asset .cid { flex: 1; min-width: 0; }
+  .asset .cid a { color: #fbbf24; text-decoration: none; font-family: ui-monospace, monospace; font-size: 12px; word-break: break-all; }
+  .asset .gw { display: flex; gap: 8px; flex: 0 0 auto; }
+  .asset .gw a { font-size: 11px; color: #64748b; text-decoration: none; }
+  .asset .copy { background: none; border: none; color: #64748b; cursor: pointer; font-size: 13px; }
+  .banner { font-size: 12px; color: #94a3b8; margin-top: 26px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 14px; }
+  #detail.err { color: #fca5a5; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="./">← Back to IPFS</a>
+    <div id="detail">Reading the on-chain registry…</div>
+  </div>
+  <script src="./config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bwip-js@4/dist/bwip-js-min.js"></script>
+  <script src="./detail.js"></script>
+</body>
+</html>
