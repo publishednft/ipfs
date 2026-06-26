@@ -15,8 +15,11 @@
   }
   .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 20px 80px; }
   a { color: #67e8f9; }
-  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; text-decoration: none; margin-bottom: 22px; }
+  .nav-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; text-decoration: none; }
   .back:hover { color: #fff; }
+  .home { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #fff; text-decoration: none; background: linear-gradient(90deg,#7c3aed,#2563eb); padding: 6px 14px; border-radius: 9999px; }
+  .home:hover { filter: brightness(1.12); }
   .hero { display: grid; grid-template-columns: 280px 1fr; gap: 28px; }
   @media (max-width: 700px) { .hero { grid-template-columns: 1fr; } }
   .cover { position: relative; width: 280px; max-width: 100%; aspect-ratio: 2/3; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 12px 40px rgba(0,0,0,.5); }
@@ -65,7 +68,27 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="./">← Back to IPFS</a>
+    <div class="nav-row">
+      <a class="back" id="backLink" href="https://publishednft.io">← Back</a>
+      <a class="back" href="./">Browse IPFS</a>
+      <a class="home" href="https://publishednft.io">Published NFT ↗</a>
+    </div>
+    <script>
+      // If we arrived from a Published NFT book/pass page (?from=…), point the
+      // Back link straight at it. Only same-site URLs are accepted.
+      (function () {
+        try {
+          var from = new URLSearchParams(location.search).get('from')
+          if (!from) return
+          var u = new URL(from)
+          if (/(^|\.)publishednft\.io$/.test(u.hostname)) {
+            var el = document.getElementById('backLink')
+            el.href = u.href
+            el.textContent = '← Back to the page'
+          }
+        } catch (e) {}
+      })()
+    </script>
     <div id="detail">Reading the on-chain registry…</div>
   </div>
   <script src="./config.js"></script>
